@@ -1,4 +1,5 @@
 document.getElementById("register").onclick = function () {
+  const D = new Date().getTime()
   let fullName = document.getElementById("name").value;
   let email = document.getElementById("email").value;
   let password = document.getElementById("password").value;
@@ -20,6 +21,7 @@ document.getElementById("register").onclick = function () {
           userId: uid,
           userName: fullName,
           emailAddress: email,
+          timestamp: D
         })
         .then(() => {
           window.location.href = "/landing.html";
@@ -27,7 +29,7 @@ document.getElementById("register").onclick = function () {
         .catch((error) => {
           let errorCode = error.code;
           let errorMessage = error.message;
-          console.log(errorMessage);
+          console.log(error);
         });
     })
     .catch((error) => {

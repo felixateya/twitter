@@ -1,15 +1,25 @@
 const D = new Date();
 console.log(D.toDateString());
 
+document.addEventListener("DOMContentLoaded", function() {
+  var comment = document.getElementById("comment");
+
+  comment.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      document.getElementById("submit").click();
+    }
+  });
+});
+
 firebase.auth().onAuthStateChanged((user) => {
   if (user) {
     var selectId = decodeURIComponent(window.location.search);
     var selectTweetId = selectId.substring(1);
     var selectCommentId = selectId.substring(1);
     var querrycomment;
-    let c;
+    let count = 0
     // countComment();
-    console.log(querrycomment);
+    
     
     
     document.getElementById("submit").onclick = function () {
@@ -26,6 +36,7 @@ firebase.auth().onAuthStateChanged((user) => {
           userId: uid,
           commentId: sendComment.id,
           commentTweetId: selectTweetId,
+          timestamp: D.getTime()
         })
         .then(() => {
           window.location.reload();
@@ -94,7 +105,7 @@ firebase.auth().onAuthStateChanged((user) => {
 
               firebase
                 .firestore()
-                .collection("Comments")
+                .collection("Comments").orderBy("timestamp", "desc")
                 .get()
                 .then((querryComment) => {
                   querryComment.forEach((commentDoc) => {
@@ -136,8 +147,8 @@ firebase.auth().onAuthStateChanged((user) => {
                         " " +
                         "</span>" +
                         "<span>" +
-                        "<i id='click' class='fa fa-heart-o' aria-hidden='true'>" +
-                        "</i>" +
+                        "<i id='click' onclick=('') class='fa fa-heart-o' aria-hidden='true'>" +
+                        "</i>" + count
                         " " +
                         "</span>" +
                         "</p>";

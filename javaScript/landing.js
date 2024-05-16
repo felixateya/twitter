@@ -1,6 +1,16 @@
 const D = new Date();
 console.log(D.getFullYear());
 
+document.addEventListener("DOMContentLoaded", function() {
+  var tweet = document.getElementById("tweet");
+
+  tweet.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      document.getElementById("send").click();
+    }
+  });
+});
+
 firebase.auth().onAuthStateChanged((user) => {
   if (user) {
     var uid = user.uid;
@@ -22,6 +32,8 @@ firebase.auth().onAuthStateChanged((user) => {
         document.getElementById("email").innerText = handle;
       });
 
+      
+      // sending tweets to firestore database
     document.getElementById("send").onclick = function () {
       let tweet = document.getElementById("tweet").value;
       let sendtweet = firebase.firestore().collection("Tweets").doc();
@@ -30,7 +42,9 @@ firebase.auth().onAuthStateChanged((user) => {
           tweets: tweet,
           userId: uid,
           tweetId: sendtweet.id,
-          todayDate: D.toDateString()
+          todayDate: D.getTime(),
+          likes: 0,
+          retweets: 0,
         })
         .then(() => {
           window.location.reload();
@@ -59,7 +73,7 @@ firebase.auth().onAuthStateChanged((user) => {
 
           firebase
             .firestore()
-            .collection("Tweets")
+            .collection("Tweets").orderBy("todayDate", "desc")
             .get()
             .then((querryTweets) => {
               let content = "";
@@ -69,44 +83,33 @@ firebase.auth().onAuthStateChanged((user) => {
                 let tweet = tweetDoc.data().tweets;
                 let tweetid = tweetDoc.data().tweetId;
                 let handle = "@" + user;
+                let count = 0
 
-                if (userId == tweetUserId) {
+                if (userId === tweetUserId) {
                   console.log(tweet);
-                  
-                  content +=
-                    '<div class="wehh" id= "wehh" onclick="navigateToTweetPage(\'' +
-                    tweetid +
-                    "')\" >";
-                  content +=
-                    "<p>" +
-                    "<img id='image' src= '/images/profile.jpg' alt=''>" +
-                    user +
-                    " " +
-                    "<span id= 'handle' >" +
-                    handle +
-                    "</span>" +
-                    "</p>";
-                  content += "<p id='post'>" + tweet + "</p>";
-                  content +=
-                    "<p id='icon'>" +
-                    "<i id='click' class='fa fa-comment-o' aria-hidden='true'>" +
-                    "</i>" +
-                    " " +
-                    "<span>" +
-                    "<i id='click' class='fa fa-retweet' aria-hidden='true'>" +
-                    "</i>" +
-                    " " +
-                    "</span>" +
-                    "<span>" +
-                    "<i id='click' class='fa fa-heart-o' aria-hidden='true'>" +
-                    "</i>" +
-                    " " +
-                    "</span>" +
-                    "</p>";
-                  content += "</div>";
+                  content += `<div class="wehh">
+                  <p>
+                  <img id= "image" src= "/images/profile.jpg" alt=""/>
+                  ${user}
+                  <span id="handle"></span>
+                  </p>
+                  <p id="post" onclick="navigateToTweetPage(\'${tweetid}\')">${tweet}</p>
+                  <p id="icon">
+                  <i id='click' class='fa fa-comment-o' aria-hidden='true'></i>
+                  <span>
+                    <i id="click" class="fa fa-retweet" aria-hidden="true"></i>
+                  </span>
+                  <span>
+                    <i id="click" onclick="${count=count+1}" class="fa fa-heart-o" aria-hidden="true"></i>
+                    ${count}
+                  </span>
+                  </p>
+                  </div>`;
+
+
                 }
+                $("#formContainer").append(content);
               });
-              $("#formContainer").append(content);
             });
         });
       });
