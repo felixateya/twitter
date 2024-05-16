@@ -108,8 +108,8 @@ firebase.auth().onAuthStateChanged((user) => {
 
 
                 }
-                $("#formContainer").append(content);
               });
+              $("#formContainer").append(content);
             });
         });
       });
